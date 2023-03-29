@@ -1,0 +1,138 @@
+---
+title: "Summary"
+author: "Tilen Gimpelj, Maja Kovač"
+date: "`r date()`"
+output: 
+  html_document: 
+    toc: yes
+    toc_float: TRUE
+    code_folding: hide
+  bibliography: reference.bib
+csl: ieee-with-url.csl
+link-citations: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,include=T,error=F,warning = F,message=F)
+pkgs <- c("rlang","tidyverse","readxl","writexl","lubridate","stringr","esquisse","miniUI","pheatmap","RColorBrewer","hexbin","BiocManager","reshape2","ggnewscale","ggbeeswarm","kableExtra", "DT")
+bioc_pkgs <- c("DESeq2","SummarizedExperiment","GEOquery","biomaRt","org.Hs.eg.db","org.Mm.eg.db","pathview","clusterProfiler","EnhancedVolcano","apeglm","genefilter","tximport","tximeta","GenomicFeatures","edgeR")
+
+for (pkg in pkgs) {if (pkg %in% installed.packages()) {message(pkg," installed, loading...");library(pkg,character.only = T)} else {message(pkg," not instlled, installing...");install.packages(pkg,dependencies =T,quiet = T)}}
+bmngr<-"BiocManager";
+if (bmngr %in% installed.packages()) {library(bmngr,character.only = T)} else {install.packages(bmngr,dependencies =T,quiet = T)}
+for (bpkg in bioc_pkgs) {if (bpkg %in% installed.packages()) {message(bpkg," installed, loading...");library(bpkg,character.only = T)} else {message(bpkg," not instlled, installing...");BiocManager::install(bpkg,update=T,ask=F)}}
+```
+<p>
+  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+    Environment
+  </a>
+</p>
+<div class="collapse" id="collapseExample1">
+  <div class="card card-body">
+```{r, results='asis',echo=FALSE}
+info <- sessionInfo()
+datatable(data.frame(version = sapply(info$otherPkgs,FUN = \(x) {c(x$package,x$Version)}),
+                        "Package_Manager" = sapply(info$otherPkgs,FUN = \(x){if (x$Package %in% bioc_pkgs){"BiocManager"} else {""}})),
+          caption = info$R.version$version.string)
+
+```
+  </div>
+</div>
+# Intro
+Summary of article "Effects of Diet Choice on Stem Cell Function Necessitate Clarity in Selection and Reporting"
+
+```{r}
+GEOaccN <- "GSE151498"
+```
+
+Geo Access number: ``r GEOaccN``
+
+# Preparation of data
+
+```{r}
+gse1 <- getGEO(GEOaccN,GSEMatrix =TRUE)[[1]]
+se1 <- as(gse1, "SummarizedExperiment")
+if (!(GEOaccN %in% list.files())){ getGEOSuppFiles(GEOaccN)}
+
+files <- list.files(GEOaccN,full.names=T)
+df1<-read.table(files[1], skip=0, sep = "\t", header=TRUE) #, row.names = 1)
+df2<-read.table(files[2], skip=0, sep = "\t", header=TRUE) #, row.names = 2)
+
+datatable(df2)
+```
+Genes  in the dataset:
+<p>
+  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample2" role="button" aria-expanded="false" aria-controls="collapseExample2">
+    Genes
+  </a>
+</p>
+<div class="collapse" id="collapseExample2">
+  <div class="card card-body">
+```{r}
+df2 %>%  
+  group_by(geneNames) %>% 
+  dplyr::count(geneNames)  %>% 
+  rename(count = n, "Gene Name" = geneNames) %>% 
+  datatable()  
+
+```
+
+</div></div>
+
+```{r}
+df2 %>%
+  rename("GeneName"="geneNames") %>% 
+  group_by(GeneName) %>% 
+  summarize_if(is.numeric,sum) %>% 
+  as.data.frame -> df2a
+
+df2b<-df2a[,-1]
+rownames(df2b)<-df2a[,1]
+
+df2b%>%colnames
+se1@colData%>%rownames
+rownames(se1@colData)<-colnames(df2b)
+
+
+se1@colData$characteristics_ch1.3<-factor(str_replace_all(se1@colData$characteristics_ch1.3, "[^A-Za-z0-9_]", "."))
+# se1@colData$characteristics_ch1.3 %>% levels() %>% 
+#   str_split("[^A-Za-z0-9]",n = 3) %>% 
+#   lapply( \(x) {x[3]}) %>% 
+#   str_split("[^A-Za-z0-9]") %>% 
+#   lapply( \(x) {str_subset(x,".+")}) %>% 
+#   apply( FUN = \(x) {str_c(x,".")})
+#   
+  
+
+```
+
+# TODO
+
+- genes with the highest value
+- genes with the lowest value
+
+- include info on gender (only for visualization)
+```{r}
+se1@colData$characteristics_ch1.5
+
+```
+
+```{r}
+se1@colData$characteristics_ch1.3
+```
+
+
+
+
+# TL;DR
+
+Wenge Li and colleagues, the findings include:
+
+- Diet choice can significantly affect stem cell function, including proliferation, differentiation, and senescence.
+
+- Different types of diets, such as high-fat diets, low-calorie diets, and fasting, have different effects on stem cells.
+
+- The effects of diet on stem cells are mediated by various mechanisms, such as oxidative stress, inflammation, and epigenetic changes.
+
+- The choice of animal models and cell types used in stem cell research can also affect the interpretation of the results and the generalizability of the findings.
+
+- The quality and clarity of reporting in scientific publications are crucial for facilitating reproducibility and transparency in stem cell research, especially regarding the details of diet selection and administration.
