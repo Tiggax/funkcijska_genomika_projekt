@@ -1,0 +1,13 @@
+# something is wrong with the latest clusterprofiler package
+# installing 4.2.3 should fix it
+# download and install latest R version 
+# https://cloud.r-project.org/
+# Restart Rstudio to unload all packages
+# New project, set 4.2.3 in Rstudio global options
+remove.packages("rlang")
+install.packages("remotes")
+install.packages("rlang")
+remotes::install_github("YuLab-SMU/clusterProfiler") 
+# Restart Rstudio
+
+# Run setup only when all OK
