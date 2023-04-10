@@ -7,9 +7,9 @@ output:
     toc: yes
     toc_float: TRUE
     code_folding: hide
-  bibliography: reference.bib
-csl: ieee-with-url.csl
+bibliography: reference.bib
 link-citations: yes
+csl: ieee-with-url.csl
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = T,include=T,error=F,warning = F,message=F)
@@ -34,22 +34,35 @@ datatable(data.frame(version = sapply(info$otherPkgs,FUN = \(x) {c(x$package,x$V
 
 # Summary
 
-TODO
-- tuki je treba napisat kratek opis članka in kaj študija iskala 
+Researchers conducted a study to demonstrate the importance of reporting dietary conditions in mouse studies. Lgr5EGFP-cre:ERT2 mice were fed different diets from weaning. The diets differed in many nutrient levels. 
+These included 4 diets: 
 
-## Wenge Li and colleagues, the findings include:
+1) diet: high-fat purified diet in which 60% of calories are from fat  (HFD)
+2) diet:  a chow diet often used as a control
+3) diet:  a purified diet that is a specific control for the purified HFD with 10% calories from fat, 20% protein, 70% carbohydrates (HFcontrol) 
+4) diet: another purified diet AIN76A
 
-- Diet choice can significantly affect stem cell function, including proliferation, differentiation, and senescence.
+The high-fat diet group were female mice. 
+The chow cohort consisted of male mice.
+The purified control diet cohorts were mixed group of female and male mice.
 
-- Different types of diets, such as high-fat diets, low-calorie diets, and fasting, have different effects on stem cells.
+Mice were sacrificed at 3 months. Lgr5hi cells were then collected by FACS from isolated intestinal crypts, and their RNA was harvested and subjected to RNA-seq.
 
-- The effects of diet on stem cells are mediated by various mechanisms, such as oxidative stress, inflammation, and epigenetic changes.
+The study found that the chow-fed mice had different gene expression patterns compared to those fed purified diets. The different diets had varying nutrient levels, and the chow diet contained high phytoestrogen levels, which could affect stem cell function.
 
-- The choice of animal models and cell types used in stem cell research can also affect the interpretation of the results and the generalizability of the findings.
+Dietary effects can ripple through layers of biochemical, signaling, metabolic, and epigenetic regulation, and therefore purified diets should be used for experimental animals, avoiding potential complications from chow diets.
 
-- The quality and clarity of reporting in scientific publications are crucial for facilitating reproducibility and transparency in stem cell research, especially regarding the details of diet selection and administration.
+The choice of diet used in rodent studies is important and depends on the research question. Specifics of the diet should be provided in a transparent format to promote data reproducibility and interpretation. Purified diets are recommended to avoid potential complications from chow diets and to better isolate the effects of specific nutrients. The choice of diet used in mouse experiments should be carefully considered, and dietary information should be reported clearly in rodent studies.
+
+This established that intestinal stem/ progenitor-like cell function can be recruited by the nutritional environment, not only by damage or genetic manipulation of Lgr5hi cells.
+
+A mouse diet that mimics the nutrient levels in human diets and is linked to high colon cancer risk causes tumors in mouse intestines and affects the function of intestinal stem cells. This shows that the nutritional environment can influence stem cell function, not just genetic or physical damage.
+
+All this emphasizes the importance of choosing diets carefully for mouse experiments and reporting dietary information clearly in stem cell-based and other rodent studies. [@2020]
 
 ***
+
+# Preparation of data
 
 ```{r}
 GEOaccN <- "GSE151498"
@@ -57,7 +70,7 @@ GEOaccN <- "GSE151498"
 
 Geo Access number: ``r GEOaccN``
 
-# Preparation of data
+## Basic info
 
 ```{r}
 gse1 <- getGEO(GEOaccN,GSEMatrix =TRUE)[[1]]
@@ -74,27 +87,30 @@ read.table(files[2], skip=0, sep = "\t", header=TRUE) %>%
 
 ```
 
-## Dataset 1
+<p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
+Datasets
+</a></p><div class="collapse" id="collapseExample3"><div class="card card-body">
+
+**Dataset 1**
 
 ```{r}
-
 datatable(df1)
 ```
 
-
-## Dataset 2
+**Dataset 2**
 
 ```{r}
-
 datatable(df2)
 ```
+</div></div>
 
 
-
-## Genes  in the dataset:
 <p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample2" role="button" aria-expanded="false" aria-controls="collapseExample2">
 Genes
 </a></p><div class="collapse" id="collapseExample2"><div class="card card-body">
+
+**Genes  in the dataset:**
+
 ```{r}
 df1 %>%  
   group_by(geneNames) %>% 
@@ -104,13 +120,14 @@ df1 %>%
 
 ```
 </div></div>
+
 ***
 
-## Transcription
+## Design of the experiment
 
-mutation of dataset from given to genes as rownames and samples as columns
+The experiment was conducted on *Lgr5^EGFP-cre:ERT2^* mice that were feed different diets. These included a high-fat purified diet in which 60% of calories are from fat [@2016], a chow diet (PicoLab 5058, LabDiets) often used as a control and which was compared to the purified HFD in Beyaz et al., a purified diet that is a specific control for the purified HFD with 10% calories from fat (HFcontrol, Research Diets, 12450B), and another purified diet, AIN76A (Research Diets, D10001). The diets differed in many nutrient levels, and importantly the chow but not purified diets contained high phytoestrogen levels. After 3 months, Lgr5^hi^ cells were collected by FACS from isolated intestinal crypts, and their RNA was harvested and subjected to RNA-seq [@2019].
 
-```{r}
+```{r data_preparation}
 df1 %>% 
   group_by(geneNames) %>% 
   summarise_if(is.numeric, sum) %>% 
@@ -118,84 +135,60 @@ df1 %>%
 
 df1a %>% 
   column_to_rownames(var = "geneNames") -> df1b
-```
 
-```{r}
 rownames(se1@colData)<-colnames(df1b)
 df1b %>% 
   mutate_if(is.numeric,round) -> df1b
 
-se1@colData$characteristics_ch1.3 <- factor(
+se1@colData$diet.ch1 <- factor(
   str_replace(
     str_replace(
-      str_replace(
-        str_extract(se1@colData$characteristics_ch1.3,
-                    ": [A-Za-z 0-9]*"),
-        ": ",
-        ""),
+        str_extract(se1@colData$diet.ch1,
+                    "[A-Za-z 0-9]*"),
       " $",
       ""),
     " ",
     "_"))
 
-se1@colData$characteristics_ch1.5 <- 
-  factor(
-    str_replace(
-      str_extract(
-        se1@colData$characteristics_ch1.5,
-        " [a-z]*"),
-      " ",
-      ""))
-```
+se1@colData$gender.ch1 <- factor(se1@colData$gender.ch1)
 
-### Saving as DESeqDataSet
-```{r}
 dds_diet <- DESeqDataSetFromMatrix(countData = df1b,
                                      colData = se1@colData,
-                                     design = ~ characteristics_ch1.3,
+                                     design = ~ diet.ch1,
                                      metadata = metadata(se1))
 dds_sex <- DESeqDataSetFromMatrix(countData = df1b,
                                      colData = se1@colData,
-                                     design = ~ characteristics_ch1.5,
+                                     design = ~ gender.ch1,
                                      metadata = metadata(se1))
 dds_sex_p_diet <- DESeqDataSetFromMatrix(countData = df1b,
                                      colData = se1@colData,
-                                     design = ~ characteristics_ch1.5 + characteristics_ch1.3,
+                                     design = ~ gender.ch1 + diet.ch1,
                                      metadata = metadata(se1))
-```
-### Saving to Rdata file
-```{r}
+
 saveRDS(
   list("diet" = dds_diet,
        "sex_p_diet" = dds_sex_p_diet,
        "sex" = dds_sex),
   file = "data.rds")
 
-ddslist <- readRDS(file = "data.rds")
+
 ```
 
 ## Exploratory analysis and visualisation
 
-### Transformation
-
 ```{r}
 dds_diet_filtered <- dds_diet[rowSums(counts(dds_diet)) > 1,]
 
-dds_diet_vst <- vst(dds_diet_filtered, blind = F)
-dds_diet_rld <- rlog(dds_diet_filtered, blind = F)
-```
-#### Effect
+vst_diet <- vst(dds_diet_filtered, blind = F)
+rld_diet <- rlog(dds_diet_filtered, blind = F)
 
-```{r}
 dds_diet_est_factors <- estimateSizeFactors(dds_diet)
 
-as.data.frame(
-  log2(
-    counts(dds_diet_est_factors,
-           normalized = TRUE)[,1:2]+1)) %>% 
+dds_diet_dataframe <- as.data.frame(log2(counts(dds_diet_est_factors,
+                                                normalized = TRUE)[,1:2]+1)) %>% 
   mutate(transformation = "log2(x + 1)") %>% 
-  bind_rows(as_data_frame(assay(dds_diet_vst)[, 1:2]) %>% mutate(transformation = "vst"),
-            as_data_frame(assay(dds_diet_rld)[, 1:2]) %>% mutate(transformation = "rlog")) -> dds_diet_dataframe
+  bind_rows(as_data_frame(assay(vst_diet)[, 1:2]) %>% mutate(transformation = "vst"),
+            as_data_frame(assay(rld_diet)[, 1:2]) %>% mutate(transformation = "rlog"))
 
 colnames(dds_diet_dataframe)[1:2] <- c("x","y")
 
@@ -204,7 +197,7 @@ dds_diet_dataframe$transformation <- factor(dds_diet_dataframe$transformation, l
 
 ```
 
-#### Plot
+### Plot
 
 ```{r}
 ggplot(dds_diet_dataframe,
@@ -214,50 +207,50 @@ ggplot(dds_diet_dataframe,
   facet_grid(. ~ transformation)
 ```
 
-#### Sample Distances
+### Sample Distances
 
 ```{r}
-dds_diet_dist <- dist(t(assay(dds_diet_vst)))
+vst_diet_dist <- dist(t(assay(vst_diet)))
 
-dds_diet_dist_matrix <- as.matrix(dds_diet_dist)
-rownames(dds_diet_dist_matrix) <- paste(dds_diet_vst$characteristics_ch1.3,
+vst_diet_dist_matrix <- as.matrix(vst_diet_dist)
+rownames(vst_diet_dist_matrix) <- paste(vst_diet$diet.ch1,
                                         sep = " - ")
-colnames(dds_diet_dist_matrix) <- NULL
+colnames(vst_diet_dist_matrix) <- NULL
 
 colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
 
-pheatmap(dds_diet_dist_matrix,
-         clustering_distance_rows = dds_diet_dist,
-         clustering_distance_cols = dds_diet_dist,
+pheatmap(vst_diet_dist_matrix,
+         clustering_distance_rows = vst_diet_dist,
+         clustering_distance_cols = vst_diet_dist,
          col = colors)
 ```
 
-#### PCA plot
+### PCA plot
 
 ```{r}
-plotPCA(dds_diet_vst, intgroup = c("characteristics_ch1.3","characteristics_ch1.5"))
+plotPCA(vst_diet, intgroup = c("diet.ch1","gender.ch1"))
 ```
 
-#### MDS
+### MDS
 
 ```{r}
-dds_diet_mds <- as.data.frame(colData(dds_diet_vst)) %>% 
-  cbind(cmdscale(dds_diet_dist_matrix))
+vst_diet_mds <- as.data.frame(colData(vst_diet)) %>% 
+  cbind(cmdscale(vst_diet_dist_matrix))
 ```
 
 ```{r}
-ggplot(dds_diet_mds, 
+ggplot(vst_diet_mds, 
        aes(x = `1`,
            y = `2`,
-           color = characteristics_ch1.3,
-           shape = characteristics_ch1.5)) +
+           color = diet.ch1,
+           shape = gender.ch1)) +
   geom_point(size = 3) + 
   coord_fixed() +
   ggtitle("MDS with VST data")
 ```
 
 ```{r}
-ggplot(dds_diet_mds, 
+ggplot(vst_diet_mds, 
        aes(x = `1`,
            y = `2`,
            color = title)) +
@@ -266,20 +259,456 @@ ggplot(dds_diet_mds,
   ggtitle("MDS with VST data")
 ```
 
-### Differential Expression Analysis
+***
+***
+***
+
+## Differential Expression Analysis
+
+### Results tables
 
 ```{r}
-DESeq_diet <- DESeq(dds_diet)
+DESeq_s_p_d <- DESeq(dds_sex_p_diet)
 
-DESeq_diet_res <- results(DESeq_diet)
-DESeq_diet_res_compare <- results(DESeq_diet,
-                             contrast = c("characteristics_ch1.3","chow",""))
+DESeq_s_p_d_res <- results(DESeq_s_p_d)
+DESeq_s_p_d_res_compare <- results(DESeq_s_p_d,
+                             contrast = c("diet.ch1","chow","AIN76A"))
 
+DESeq_s_p_d_res_.05 <- results(DESeq_s_p_d, alpha = 0.05)
+
+DESeq_s_p_d_res_LFC1 <- results(DESeq_s_p_d, lfcThreshold = 1)
 ```
 
 
+
+#### Multiple testing
+
+```{r}
+
+# sum(DESeq_s_p_d_res$pvalue < 0.05, na.rm = T)
+# sum(!is.na(DESeq_s_p_d_res$pvalue))
+```
+
+```{r}
+DESeq_s_p_d_res_sig <- subset(DESeq_s_p_d_res, padj < 0.1 )
+```
+
+### Ploting Results
+
+```{r}
+topG <- rownames(DESeq_s_p_d_res)[which.min(DESeq_s_p_d_res$padj)]
+```
+
+#### 1Counts plots
+
+Plot w chow
+```{r ang4_count}
+plotCounts(dds_sex_p_diet,
+           gene = topG,
+           intgroup = c("diet.ch1"),)
+```
+
+Plot w sex difference
+```{r}
+plotCounts(dds_sex_p_diet,
+           gene = topG,
+           intgroup = c("gender.ch1"))
+```
+```{r}
+geneCounts <- plotCounts(dds_sex_p_diet,
+                         gene = topG,
+                         intgroup = c("diet.ch1","gender.ch1"),
+                         returnData = T)
+```
+
+```{r}
+ggplot(geneCounts,
+       aes(x = diet.ch1,
+           y = count,
+           color = gender.ch1)) +
+  scale_y_log10() +
+  geom_beeswarm(cex = 3)
+```
+```{r}
+ggplot(geneCounts,
+       aes(x = diet.ch1,
+           y = count,
+           color = gender.ch1,
+           group = gender.ch1)) +
+  scale_y_log10() +
+  geom_point(size = 3) +
+  geom_line()
+```
+
+MA plot
+```{r}
+n<-4
+```
+
+`r resultsNames(DESeq_s_p_d)[n]`
+
+```{r}
+# resultsNames(DESeq(dds_diet, betaPrior = F))
+
+MA_s_p_d <- lfcShrink(DESeq(dds_diet, betaPrior = F),
+                    coef = n, # chaw vs AIN76A
+                    type = "apeglm")
+
+DESeq2::plotMA(MA_s_p_d, ylim = c(-5, 5))
+```
+
+
+
+gene clustering
+```{r}
+vst_s_p_d <- vst(DESeq_s_p_d, blind = F)
+topvarG <- head(
+  order(
+    rowVars(assay(vst_s_p_d)),
+    decreasing = T),
+  20)
+
+mat <- assay(vst_s_p_d)[topvarG, ] %>% 
+  {. -rowMeans(.)}
+
+anno <- as.data.frame(colData(vst_s_p_d)[, c("diet.ch1","gender.ch1")])
+pheatmap(mat = mat,
+         annotation_col = anno,
+         fontsize_row = 5)
+```
+
+### Annotation
+
+```{r}
+dtb <- org.Mm.eg.db
+
+columns(dtb)
+sample_dtb <- sapply(columns(dtb), 
+                     \(x){
+                       head(keys(dtb,
+                                 keytype = x),
+                            3)})
+head(keys(dtb, keytype = "ALIAS"), 20)
+head(keys(dtb, keytype = "SYMBOL"), 20)
+
+dds_sex_p_diet %>% 
+  counts() %>% 
+  rownames() %>% 
+  length()
+
+
+sum(rownames(counts(dds_sex_p_diet)) %in% keys(dtb,keytype="ALIAS"))
+sum(rownames(counts(dds_sex_p_diet)) %in% keys(dtb,keytype="SYMBOL"))
+
+df_anno_1 <- AnnotationDbi::select(x = dtb,
+                                   keys = rownames(counts(dds_sex_p_diet)),
+                                   column = c("ENSEMBL", "ENTREZID"),
+                                   keytype = "SYMBOL",
+                                   multiVals = "first")
+
+df_anno_2 <- mapIds(x = dtb,
+                    keys = rownames(counts(dds_sex_p_diet)),
+                    column = "ENSEMBL",
+                    keytype = "ALIAS",
+                    multiVals = "first")
+
+# df_anno_2_dplcts <- df_anno_2[duplicated(df_anno_2)]
+# 
+# df_anno_2_dplcts[!is.na(df_anno_2_dplcts)]
+```
+### Volcano plot
+
+```{r }
+df_diet <- as.data.frame(counts(dds_diet))
+coldta <- colData(dds_diet)
+mtadta <- metadata(dds_diet)
+
+DESeq_diet <- DESeq(dds_diet, betaPrior = F)
+
+DESeq_diet_res_compare <- results(DESeq_diet,
+             contrast = c("diet.ch1", "chow", "AIN76A"))
+
+DESeq_diet_lfc <- lfcShrink(DESeq_diet,
+                            contrast = c("diet.ch1", "chow", "AIN76A"),
+                            res = DESeq_diet_res_compare,
+                            type = "normal")
+```
+
+
+```{r volcanoplot, fig.cap="Volcano plot in contrast of chow and AIN76A feeds"}
+EnhancedVolcano(DESeq_diet_lfc,
+                lab = rownames(DESeq_diet_lfc),
+                x = "log2FoldChange",
+                y = "pvalue")
+```
+
+
+```{r}
+ensembl <- useMart("ensembl")
+datasets <- listDatasets(ensembl)
+
+datasets %>% 
+  filter(grepl("[mM]ouse", description))
+
+ensembl <- useDataset("mmusculus_gene_ensembl", mart = ensembl)
+filters <- listFilters(ensembl)
+attributes <- listAttributes(ensembl)
+
+dbi_anno <- AnnotationDbi::select(x = dtb,
+                                   keys = rownames(counts(dds_sex_p_diet)),
+                                   column = c("ENTREZID","SYMBOL"),
+                                   keytype = "SYMBOL",
+                                   multiVals = "first")
+
+bm_anno <- getBM(attributes=c("ensembl_gene_id","description","chromosome_name", 
+                              'entrezgene_id',"uniprot_gn_symbol","hgnc_symbol"), 
+                 filters = "entrezgene_id", 
+                 values =  dbi_anno$ENTREZID, 
+                 mart = ensembl)
+
+bm_anno$entrezgene_id <- as.character(bm_anno$entrezgene_id)
+
+dtb_anno <- dbi_anno %>% 
+  inner_join(bm_anno, by = c("ENTREZID" = "entrezgene_id"))
+
+dtb_df <- as.data.frame(counts(dds_sex_p_diet))
+```
+
+```{r boxplot_counts}
+boxplot(x = as.list(dtb_df))
+```
+
+```{r}
+ggplot(data = melt(dtb_df),
+       aes(x = variable,
+           y = value)) +
+  geom_boxplot(aes(fill = variable))
+```
+```{r}
+dtb_df2 <- as.data.frame(assay(vst_s_p_d))
+
+ggplot(data = melt(dtb_df2),
+       aes(x = variable,
+           y = value)) +
+  geom_boxplot(aes(fill = variable))
+```
+
+```{r}
+rld_sex_p_diet <- rlog(dds_sex_p_diet)
+
+df_rlog_sex_p_diet <- as.data.frame(assay(vst_s_p_d))
+
+ggplot(data = melt(df_rlog_sex_p_diet), 
+       aes(x=variable, y=value)) + 
+  geom_boxplot(aes(fill=variable))
+```
+
+### Gene ontology analysis
+
+ Gene Ontology defines concepts/classes used to describe gene function, and relationships between these concepts. It classifies functions along three aspects:
+ 
+MF: Molecular Function
+  molecular activities of gene products
+
+CC: Cellular Component
+  where gene products are active
+
+BP: Biological Process
+  pathways and larger processes made up of the activities of multiple gene products
+
+```{r}
+res_sex_p_diet <- results(DESeq_s_p_d,
+                          contrast = c("diet.ch1", "chow", "AIN76A"))
+res_sex_p_diet <- res_sex_p_diet[!is.na(res_sex_p_diet$padj), ]
+sig_exp_genes <- res_sex_p_diet[(res_sex_p_diet$padj < 0.05) & (abs(res_sex_p_diet$log2FoldChange) > 1), ]
+
+ggo1 <- groupGO(gene     = rownames(sig_exp_genes),
+                OrgDb    = dtb,
+                keyType = "SYMBOL",
+                ont      = "BP",
+                level    = 1,
+                readable = F)
+
+ggo2 <- groupGO(gene     = rownames(sig_exp_genes),
+                OrgDb    = dtb,
+                keyType = "SYMBOL",
+                ont      = "BP",
+                level    = 2,
+                readable = F)
+
+ego <- enrichGO(gene          = rownames(sig_exp_genes),
+                universe      = rownames(counts(DESeq_s_p_d)),
+                OrgDb         = dtb,
+                keyType       = 'SYMBOL',
+                ont           = "BP",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.05,
+                qvalueCutoff  = 0.05,
+                readable      = F)
+
+df_ego<-as.data.frame(ego[,-8])
+
+```
+
+```{r}
+barplot(ego,
+        showCategory = 20)
+```
+
+```{r}
+goplot(ego)
+```
+
+
+```{r}
+cnetplot(ego, categorySize = "pvalue", foldChange = rownames(sig_exp_genes))
+```
+
+KEGG
+
+```{r}
+search_kegg_organism('mmu', by='kegg_code')
+
+sig_exp_genes$ENTREZID <- AnnotationDbi::mapIds(x = dtb,
+                                                keys = rownames(sig_exp_genes),
+                                                column = "ENTREZID",
+                                                keytype = "SYMBOL",
+                                                multiVals = "first")
+
+
+```
+
+```{r}
+kk <- enrichKEGG(gene          = sig_exp_genes$ENTREZID,
+                 organism      = 'mmu',
+                 pAdjustMethod = "BH",
+                 qvalueCutoff  = 0.2,
+                 pvalueCutoff  = 0.05)
+
+kkres<-as.data.frame(kk@result)
+
+significantkkres<-kkres[kkres$pvalue<kk@pvalueCutoff & kkres$p.adjust<kk@pvalueCutoff & kkres$qvalue < kk@qvalueCutoff,2,drop=F]
+
+geneList<-sig_exp_genes$log2FoldChange
+names(geneList)<- sig_exp_genes$ENTREZID
+
+
+download.pathway<-function(keggid){
+folder<-"pics"
+if (!("pics" %in% list.files())) {dir.create(folder)}
+setwd(folder)
+pic <- pathview(gene.data  = geneList,
+                     pathway.id = keggid,
+                     species    = stringr::str_extract(keggid,"[A-z]+"),
+                     limit      = list(gene=max(abs(geneList)), cpd=1))
+setwd("..")
+}
+
+a <- lapply(rownames(significantkkres),download.pathway)
+
+mkk <- enrichMKEGG(gene           = sig_exp_genes$ENTREZID,
+                   organism       = 'mmu',
+                   pAdjustMethod  = "BH",
+                   qvalueCutoff   = 0.2,
+                   pvalueCutoff   = 0.05)
+
+# mkkres <- as.data.frame(mkk@result)
+```
+
+<p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample4" role="button" aria-expanded="false" aria-controls="collapseExample4">
+KEGG images
+</a></p><div class="collapse" id="collapseExample4"><div class="card card-body">
+```{r}
+piclist <- list.files(path = "pics",
+                      pattern = '*.png$',)
+                      # pattern = '^[a-zA-Z0-9]*.png$',)
+
+knitr::include_graphics(paste("pics", piclist, sep = "/"))
+```
+</div></div>
+
+```{r}
+count_data <- as.data.frame(counts(dds_diet))
+groups <- dds_diet@colData$diet.ch1
+d <- DGEList(counts=count_data, group=groups)
+
+cpm <- cpm(d)
+keep <- rowSums(cpm>1) >= ncol(cpm)/2 # adjust for your dataset
+# Here, a CPM value of 1 means that a gene is expressed if it has at least 20 counts (with a total of 20 million reads)
+d <- d[keep, ]
+d$samples$lib.size <- colSums(d$counts)
+d <- calcNormFactors(d, method= "TMM")
+```
+
+```{r}
+col = as.numeric(d$samples$group)
+plotMDS(d, method="bcv",pch = 20,col = 1:4)
+legend("bottomright",
+       as.character(unique(d$samples$group)), col=1:4, pch=20)
+```
+
+```{r}
+# Estimating the dispersion
+
+d1 <- estimateCommonDisp(d, verbose=T)
+d1 <- estimateTagwiseDisp(d1)
+```
+
+```{r}
+# names(d1)
+plotBCV(d1)
+```
+
+```{r}
+# unique(groups)
+
+et12 <- exactTest(d1, pair=unique(groups)[1:2]) # Select chow and AIN76A
+
+out <- topTags(et12, n = 10)
+
+knitr::kable(out$table, 
+             caption = paste("method: ", out$adjust.method,
+             "\ncomparison: ", out$comparison, 
+             "\ntest: ", out$test))
+
+de1 <- decideTestsDGE(et12, adjust.method="BH", p.value=0.05)
+summary(de1)
+
+design <- model.matrix(~groups) 
+
+y <- estimateDisp(d,design) 
+
+#To perform quasi-likelihood F-tests: 
+fit <- glmQLFit(y,design) 
+qlf <- glmQLFTest(fit,coef=2)
+
+out <- topTags(qlf)
+
+knitr::kable(out$table, 
+             caption = paste("method: ", out$adjust.method,
+             "\ncomparison: ", out$comparison, 
+             "\ntest: ", out$test))
+
+```
+
+```{r}
+fit <- glmFit(y,design) 
+lrt <- glmLRT(fit,coef=2) 
+
+out <- topTags(lrt)
+
+knitr::kable(out$table, 
+             caption = paste("method: ", out$adjust.method,
+             "\ncomparison: ", out$comparison, 
+             "\ntest: ", out$test))
+```
+
+
+
 ***
+
 # TODO
+
 - <input type="checkbox" checked>todo</input>
 
 - <input type="checkbox" >Brief description of article / aims of study</input>
@@ -294,21 +723,11 @@ DESeq_diet_res_compare <- results(DESeq_diet,
   
 - <input type="checkbox"> compare your results with the results reported in the article and highlight your main conclusions</input>
 
+- <input type="checkbox"> Edge R analysis </input>
 - bonus
   - genes with the highest value
   - genes with the lowest value
   - include info on gender (only for visualization)
-```{r}
-se1@colData$characteristics_ch1.5
-
-```
-
-```{r}
-se1@colData$characteristics_ch1.3
-```
-
-
-
 
 # TL;DR
 
@@ -323,3 +742,5 @@ Wenge Li and colleagues, the findings include:
 - The choice of animal models and cell types used in stem cell research can also affect the interpretation of the results and the generalizability of the findings.
 
 - The quality and clarity of reporting in scientific publications are crucial for facilitating reproducibility and transparency in stem cell research, especially regarding the details of diet selection and administration.
+
+# References
