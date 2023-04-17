@@ -3,7 +3,7 @@ title: "Summary"
 author: "Tilen Gimpelj, Maja Kovač"
 date: "`r date()`"
 output: 
-  html_document: 
+  bookdown::html_document2:
     toc: yes
     toc_float: TRUE
     code_folding: hide
@@ -11,40 +11,41 @@ bibliography: reference.bib
 link-citations: yes
 csl: ieee-with-url.csl
 ---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = T,include=T,error=F,warning = F,message=F)
 pkgs <- c("rlang","tidyverse","readxl","writexl","lubridate","stringr","esquisse","miniUI","pheatmap","RColorBrewer","hexbin","BiocManager","reshape2","ggnewscale","ggbeeswarm","kableExtra", "DT")
-bioc_pkgs <- c("DESeq2","SummarizedExperiment","GEOquery","biomaRt","org.Hs.eg.db","org.Mm.eg.db","pathview","clusterProfiler","EnhancedVolcano","apeglm","genefilter","tximport","tximeta","GenomicFeatures","edgeR")
+bioc_pkgs <- c("DESeq2","SummarizedExperiment","GEOquery","biomaRt","org.Hs.eg.db","org.Mm.eg.db","pathview","clusterProfiler","EnhancedVolcano","apeglm","genefilter","tximport","tximeta","GenomicFeatures","edgeR","SBGNview")
 
 for (pkg in pkgs) {if (pkg %in% installed.packages()) {message(pkg," installed, loading...");library(pkg,character.only = T)} else {message(pkg," not instlled, installing...");install.packages(pkg,dependencies =T,quiet = T)}}
 bmngr<-"BiocManager";
 if (bmngr %in% installed.packages()) {library(bmngr,character.only = T)} else {install.packages(bmngr,dependencies =T,quiet = T)}
 for (bpkg in bioc_pkgs) {if (bpkg %in% installed.packages()) {message(bpkg," installed, loading...");library(bpkg,character.only = T)} else {message(bpkg," not instlled, installing...");BiocManager::install(bpkg,update=T,ask=F)}}
 ```
-<p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-Environment
-</a></p><div class="collapse" id="collapseExample1"><div class="card card-body">
+
+<p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1"> Environment </a></p>
+
+::: {#collapseExample1 .collapse}
+::: {.card .card-body}
 ```{r, results='asis',echo=FALSE}
 info <- sessionInfo()
 datatable(data.frame(version = sapply(info$otherPkgs,FUN = \(x) {c(x$package,x$Version)}),
                         "Package_Manager" = sapply(info$otherPkgs,FUN = \(x){if (x$Package %in% bioc_pkgs){"BiocManager"} else {""}})),
           caption = info$R.version$version.string)
 ```
-</div></div>
+:::
+:::
 
 # Summary
 
-Researchers conducted a study to demonstrate the importance of reporting dietary conditions in mouse studies. Lgr5EGFP-cre:ERT2 mice were fed different diets from weaning. The diets differed in many nutrient levels. 
-These included 4 diets: 
+Researchers conducted a study to demonstrate the importance of reporting dietary conditions in mouse studies. Lgr5^EGFP-cre:ERT2^ mice were fed different diets from weaning. The diets differed in many nutrient levels. These included 4 diets:
 
-1) diet: high-fat purified diet in which 60% of calories are from fat  (HFD)
-2) diet:  a chow diet often used as a control
-3) diet:  a purified diet that is a specific control for the purified HFD with 10% calories from fat, 20% protein, 70% carbohydrates (HFcontrol) 
-4) diet: another purified diet AIN76A
+1)  diet: high-fat purified diet in which 60% of calories are from fat (HFD)
+2)  diet: a chow diet often used as a control
+3)  diet: a purified diet that is a specific control for the purified HFD with 10% calories from fat, 20% protein, 70% carbohydrates (HFcontrol)
+4)  diet: another purified diet AIN76A
 
-The high-fat diet group were female mice. 
-The chow cohort consisted of male mice.
-The purified control diet cohorts were mixed group of female and male mice.
+The high-fat diet group were female mice. The chow cohort consisted of male mice. The purified control diet cohorts were mixed group of female and male mice.
 
 Mice were sacrificed at 3 months. Lgr5hi cells were then collected by FACS from isolated intestinal crypts, and their RNA was harvested and subjected to RNA-seq.
 
@@ -60,7 +61,7 @@ A mouse diet that mimics the nutrient levels in human diets and is linked to hig
 
 All this emphasizes the importance of choosing diets carefully for mouse experiments and reporting dietary information clearly in stem cell-based and other rodent studies. [@2020]
 
-***
+------------------------------------------------------------------------
 
 # Preparation of data
 
@@ -68,7 +69,7 @@ All this emphasizes the importance of choosing diets carefully for mouse experim
 GEOaccN <- "GSE151498"
 ```
 
-Geo Access number: ``r GEOaccN``
+Geo Access number: `r GEOaccN`
 
 ## Basic info
 
@@ -87,10 +88,10 @@ read.table(files[2], skip=0, sep = "\t", header=TRUE) %>%
 
 ```
 
-<p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
-Datasets
-</a></p><div class="collapse" id="collapseExample3"><div class="card card-body">
+<p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3"> Datasets </a></p>
 
+::: {#collapseExample3 .collapse}
+::: {.card .card-body}
 **Dataset 1**
 
 ```{r}
@@ -102,14 +103,14 @@ datatable(df1)
 ```{r}
 datatable(df2)
 ```
-</div></div>
+:::
+:::
 
+<p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample2" role="button" aria-expanded="false" aria-controls="collapseExample2"> Genes </a></p>
 
-<p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample2" role="button" aria-expanded="false" aria-controls="collapseExample2">
-Genes
-</a></p><div class="collapse" id="collapseExample2"><div class="card card-body">
-
-**Genes  in the dataset:**
+::: {#collapseExample2 .collapse}
+::: {.card .card-body}
+**Genes in the dataset:**
 
 ```{r}
 df1 %>%  
@@ -119,15 +120,16 @@ df1 %>%
   datatable()  
 
 ```
-</div></div>
+:::
+:::
 
-***
+------------------------------------------------------------------------
 
 ## Design of the experiment
 
 The experiment was conducted on *Lgr5^EGFP-cre:ERT2^* mice that were feed different diets. These included a high-fat purified diet in which 60% of calories are from fat [@2016], a chow diet (PicoLab 5058, LabDiets) often used as a control and which was compared to the purified HFD in Beyaz et al., a purified diet that is a specific control for the purified HFD with 10% calories from fat (HFcontrol, Research Diets, 12450B), and another purified diet, AIN76A (Research Diets, D10001). The diets differed in many nutrient levels, and importantly the chow but not purified diets contained high phytoestrogen levels. After 3 months, Lgr5^hi^ cells were collected by FACS from isolated intestinal crypts, and their RNA was harvested and subjected to RNA-seq [@2019].
 
-```{r data_preparation}
+```{r data-preparation}
 df1 %>% 
   group_by(geneNames) %>% 
   summarise_if(is.numeric, sum) %>% 
@@ -174,6 +176,10 @@ saveRDS(
 
 ```
 
+# Analysis
+
+In the analysis we comapred diet groups `chow` and `AI76A`.
+
 ## Exploratory analysis and visualisation
 
 ```{r}
@@ -210,25 +216,30 @@ ggplot(dds_diet_dataframe,
 ### Sample Distances
 
 ```{r}
-vst_diet_dist <- dist(t(assay(vst_diet)))
+vst_diet_dist_matrix <- vst_diet %>% 
+  assay() %>% 
+  t() %>% 
+  dist() %>% 
+  as.matrix()
 
-vst_diet_dist_matrix <- as.matrix(vst_diet_dist)
-rownames(vst_diet_dist_matrix) <- paste(vst_diet$diet.ch1,
-                                        sep = " - ")
-colnames(vst_diet_dist_matrix) <- NULL
+rownames(vst_diet_dist_matrix) <- paste(vst_diet$diet.ch1)
+colnames(vst_diet_dist_matrix) <- paste(vst_diet$diet.ch1)
 
 colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+```
 
+```{r pheatmap-dist}
 pheatmap(vst_diet_dist_matrix,
-         clustering_distance_rows = vst_diet_dist,
-         clustering_distance_cols = vst_diet_dist,
          col = colors)
 ```
 
 ### PCA plot
 
-```{r}
-plotPCA(vst_diet, intgroup = c("diet.ch1","gender.ch1"))
+```{r PCA-plot, fig.cap="PCA plot of mice diets. Chow show segregation from other groups."}
+plotPCA(vst_diet, intgroup = c("diet.ch1"), returnData = T) %>% 
+  ggplot(aes(x = PC1, y = PC2, color = group)) +
+  geom_point() +
+  geom_density2d(contour_var = "ndensity", alpha = 0.3,)
 ```
 
 ### MDS
@@ -259,63 +270,80 @@ ggplot(vst_diet_mds,
   ggtitle("MDS with VST data")
 ```
 
-***
-***
-***
-
 ## Differential Expression Analysis
 
-### Results tables
-
 ```{r}
-DESeq_s_p_d <- DESeq(dds_sex_p_diet)
+DESeq_diet <- DESeq(dds_diet)
+res_diet <- results(DESeq_diet)
+res_diet_compare <- results(DESeq_diet,
+                            contrast = c("diet.ch1","chow","AIN76A"))
 
-DESeq_s_p_d_res <- results(DESeq_s_p_d)
-DESeq_s_p_d_res_compare <- results(DESeq_s_p_d,
-                             contrast = c("diet.ch1","chow","AIN76A"))
+res_diet_A.05 <- results(DESeq_diet, alpha = 0.05)
+res_diet_LFC1 <- results(DESeq_diet, lfcThreshold = 1)
 
-DESeq_s_p_d_res_.05 <- results(DESeq_s_p_d, alpha = 0.05)
-
-DESeq_s_p_d_res_LFC1 <- results(DESeq_s_p_d, lfcThreshold = 1)
-```
-
-
-
-#### Multiple testing
-
-```{r}
-
-# sum(DESeq_s_p_d_res$pvalue < 0.05, na.rm = T)
-# sum(!is.na(DESeq_s_p_d_res$pvalue))
 ```
 
 ```{r}
-DESeq_s_p_d_res_sig <- subset(DESeq_s_p_d_res, padj < 0.1 )
+res_diet_sig <- subset(res_diet, padj < 0.1 )
 ```
-
-### Ploting Results
 
 ```{r}
-topG <- rownames(DESeq_s_p_d_res)[which.min(DESeq_s_p_d_res$padj)]
+topGs <- dds_diet %>% 
+  DESeq() %>% 
+  results() %>% 
+  na.omit()  %>% 
+  .[abs(.$log2FoldChange) > 0.5,] %>% 
+  .[order( abs(.$log2FoldChange),decreasing = T),] %>% 
+  head(20) %>% 
+  rownames()
+
+topG <- topGs[1]
+topG2 <- topGs[5] # Ang4
 ```
 
-#### 1Counts plots
+### Top Genes
 
-Plot w chow
-```{r ang4_count}
-plotCounts(dds_sex_p_diet,
+```{r topGenes, fig.cap="Top 20 expressed genenes arranged by descending log"}
+
+res_diet[topGs,] %>% 
+  as.data.frame() %>% 
+  arrange(desc(abs(log2FoldChange))) %>% 
+  mutate(Rank = 1:20) %>% 
+  datatable()
+```
+
+### Count of Top Gene
+
+#### Ang4
+
+```{r topG-count2,  fig.cap="plot of counts for top Gene"}
+plotCounts(dds_diet,
+           gene = topG2,
+           intgroup = c("diet.ch1"))
+```
+
+```{r topG-count-sex2, fig.cap="Plot with mice sex difference"}
+plotCounts(dds_diet,
+           gene = topG2,
+           intgroup = c("gender.ch1"))
+```
+
+#### Pla2g4c
+
+```{r topG-count,  fig.cap="plot of counts for top Gene"}
+plotCounts(dds_diet,
            gene = topG,
-           intgroup = c("diet.ch1"),)
+           intgroup = c("diet.ch1"))
 ```
 
-Plot w sex difference
-```{r}
-plotCounts(dds_sex_p_diet,
+```{r topG-count-sex, fig.cap="Plot with mice sex difference"}
+plotCounts(dds_diet,
            gene = topG,
            intgroup = c("gender.ch1"))
 ```
+
 ```{r}
-geneCounts <- plotCounts(dds_sex_p_diet,
+geneCounts <- plotCounts(dds_diet,
                          gene = topG,
                          intgroup = c("diet.ch1","gender.ch1"),
                          returnData = T)
@@ -329,6 +357,7 @@ ggplot(geneCounts,
   scale_y_log10() +
   geom_beeswarm(cex = 3)
 ```
+
 ```{r}
 ggplot(geneCounts,
        aes(x = diet.ch1,
@@ -340,39 +369,45 @@ ggplot(geneCounts,
   geom_line()
 ```
 
-MA plot
+### MA plot
+
 ```{r}
 n<-4
+DESeq_diet_bP_f <- DESeq(dds_diet, betaPrior = F)
 ```
 
-`r resultsNames(DESeq_s_p_d)[n]`
+`r resultsNames(DESeq_diet_bP_f)[n]`
 
 ```{r}
 # resultsNames(DESeq(dds_diet, betaPrior = F))
 
-MA_s_p_d <- lfcShrink(DESeq(dds_diet, betaPrior = F),
+MA_s_p_d <- lfcShrink(DESeq_diet_bP_f,
                     coef = n, # chaw vs AIN76A
                     type = "apeglm")
 
 DESeq2::plotMA(MA_s_p_d, ylim = c(-5, 5))
 ```
 
+### gene clustering
 
-
-gene clustering
 ```{r}
-vst_s_p_d <- vst(DESeq_s_p_d, blind = F)
-topvarG <- head(
-  order(
-    rowVars(assay(vst_s_p_d)),
-    decreasing = T),
-  20)
+anno <- colData(dds_diet)[, c("diet.ch1", "gender.ch1")] %>% 
+  as.data.frame()
 
-mat <- assay(vst_s_p_d)[topvarG, ] %>% 
-  {. -rowMeans(.)}
+result <- dds_diet %>% 
+  DESeq() %>% 
+  results() %>% 
+  na.omit()  %>% 
+  .[abs(.$log2FoldChange) > 0.5,] %>% 
+  .[order( abs(.$log2FoldChange),decreasing = T),] %>% 
+  head(20) %>% 
+  rownames() %>% 
+  vst_diet[.,] %>% 
+  assay()
+```
 
-anno <- as.data.frame(colData(vst_s_p_d)[, c("diet.ch1","gender.ch1")])
-pheatmap(mat = mat,
+```{r gene-diet-matrix, fig.cap="Heatmap of genes and samples in the study"}
+pheatmap(result,
          annotation_col = anno,
          fontsize_row = 5)
 ```
@@ -382,7 +417,6 @@ pheatmap(mat = mat,
 ```{r}
 dtb <- org.Mm.eg.db
 
-columns(dtb)
 sample_dtb <- sapply(columns(dtb), 
                      \(x){
                        head(keys(dtb,
@@ -412,18 +446,14 @@ df_anno_2 <- mapIds(x = dtb,
                     keytype = "ALIAS",
                     multiVals = "first")
 
-# df_anno_2_dplcts <- df_anno_2[duplicated(df_anno_2)]
-# 
-# df_anno_2_dplcts[!is.na(df_anno_2_dplcts)]
 ```
+
 ### Volcano plot
 
 ```{r }
 df_diet <- as.data.frame(counts(dds_diet))
 coldta <- colData(dds_diet)
 mtadta <- metadata(dds_diet)
-
-DESeq_diet <- DESeq(dds_diet, betaPrior = F)
 
 DESeq_diet_res_compare <- results(DESeq_diet,
              contrast = c("diet.ch1", "chow", "AIN76A"))
@@ -434,7 +464,6 @@ DESeq_diet_lfc <- lfcShrink(DESeq_diet,
                             type = "normal")
 ```
 
-
 ```{r volcanoplot, fig.cap="Volcano plot in contrast of chow and AIN76A feeds"}
 EnhancedVolcano(DESeq_diet_lfc,
                 lab = rownames(DESeq_diet_lfc),
@@ -442,13 +471,9 @@ EnhancedVolcano(DESeq_diet_lfc,
                 y = "pvalue")
 ```
 
-
 ```{r}
 ensembl <- useMart("ensembl")
 datasets <- listDatasets(ensembl)
-
-datasets %>% 
-  filter(grepl("[mM]ouse", description))
 
 ensembl <- useDataset("mmusculus_gene_ensembl", mart = ensembl)
 filters <- listFilters(ensembl)
@@ -474,7 +499,7 @@ dtb_anno <- dbi_anno %>%
 dtb_df <- as.data.frame(counts(dds_sex_p_diet))
 ```
 
-```{r boxplot_counts}
+```{r boxplot-counts}
 boxplot(x = as.list(dtb_df))
 ```
 
@@ -484,7 +509,10 @@ ggplot(data = melt(dtb_df),
            y = value)) +
   geom_boxplot(aes(fill = variable))
 ```
+
 ```{r}
+vst_s_p_d <- vst(dds_sex_p_diet)
+
 dtb_df2 <- as.data.frame(assay(vst_s_p_d))
 
 ggplot(data = melt(dtb_df2),
@@ -503,24 +531,27 @@ ggplot(data = melt(df_rlog_sex_p_diet),
   geom_boxplot(aes(fill=variable))
 ```
 
+## Functional enrichment analysis
+
 ### Gene ontology analysis
 
- Gene Ontology defines concepts/classes used to describe gene function, and relationships between these concepts. It classifies functions along three aspects:
- 
-MF: Molecular Function
-  molecular activities of gene products
+Gene Ontology defines concepts/classes used to describe gene function, and relationships between these concepts. It classifies functions along three aspects:
 
-CC: Cellular Component
-  where gene products are active
+MF: Molecular Function molecular activities of gene products
 
-BP: Biological Process
-  pathways and larger processes made up of the activities of multiple gene products
+CC: Cellular Component where gene products are active
+
+BP: Biological Process pathways and larger processes made up of the activities of multiple gene products
+
+### Encrich GO
 
 ```{r}
-res_sex_p_diet <- results(DESeq_s_p_d,
-                          contrast = c("diet.ch1", "chow", "AIN76A"))
-res_sex_p_diet <- res_sex_p_diet[!is.na(res_sex_p_diet$padj), ]
-sig_exp_genes <- res_sex_p_diet[(res_sex_p_diet$padj < 0.05) & (abs(res_sex_p_diet$log2FoldChange) > 1), ]
+sig_exp_genes <- results(DESeq_diet,
+                          contrast = c("diet.ch1", "chow", "AIN76A")) %>% 
+  na.omit() %>% 
+  .[.$padj < 0.001 & (abs(.$log2FoldChange) > 1),]
+
+  
 
 ggo1 <- groupGO(gene     = rownames(sig_exp_genes),
                 OrgDb    = dtb,
@@ -537,44 +568,48 @@ ggo2 <- groupGO(gene     = rownames(sig_exp_genes),
                 readable = F)
 
 ego <- enrichGO(gene          = rownames(sig_exp_genes),
-                universe      = rownames(counts(DESeq_s_p_d)),
+                universe      = rownames(counts(DESeq_diet)),
                 OrgDb         = dtb,
                 keyType       = 'SYMBOL',
                 ont           = "BP",
                 pAdjustMethod = "BH",
-                pvalueCutoff  = 0.05,
+                pvalueCutoff  = 0.005,
                 qvalueCutoff  = 0.05,
                 readable      = F)
+
 
 df_ego<-as.data.frame(ego[,-8])
 
 ```
 
-```{r}
+```{r process-count}
 barplot(ego,
         showCategory = 20)
 ```
 
-```{r}
+```{r process-graph}
 goplot(ego)
+
 ```
 
+### CNET plot
 
-```{r}
+```{r gene-graph, fig.cap="Genes involved in cell porcesess"}
 cnetplot(ego, categorySize = "pvalue", foldChange = rownames(sig_exp_genes))
 ```
 
-KEGG
+### KEGG
 
 ```{r}
-search_kegg_organism('mmu', by='kegg_code')
+# search_kegg_organism('mmu', by='kegg_code')
 
 sig_exp_genes$ENTREZID <- AnnotationDbi::mapIds(x = dtb,
                                                 keys = rownames(sig_exp_genes),
                                                 column = "ENTREZID",
-                                                keytype = "SYMBOL",
+                                                keytype = "ALIAS", # "SYMBOL", <-- SYMBOL uses exact matching. some Genes have updated names!
                                                 multiVals = "first")
-
+# sig_exp_genes <- sig_exp_genes %>% na.omit()
+# keytypes(dtb) 
 
 ```
 
@@ -583,24 +618,23 @@ kk <- enrichKEGG(gene          = sig_exp_genes$ENTREZID,
                  organism      = 'mmu',
                  pAdjustMethod = "BH",
                  qvalueCutoff  = 0.2,
-                 pvalueCutoff  = 0.05)
+                 pvalueCutoff  = 0.01)
 
 kkres<-as.data.frame(kk@result)
 
-significantkkres<-kkres[kkres$pvalue<kk@pvalueCutoff & kkres$p.adjust<kk@pvalueCutoff & kkres$qvalue < kk@qvalueCutoff,2,drop=F]
+significantkkres<-kkres[kkres$pvalue < kk@pvalueCutoff & kkres$p.adjust < kk@pvalueCutoff & kkres$qvalue < kk@qvalueCutoff,2,drop=F]
 
 geneList<-sig_exp_genes$log2FoldChange
 names(geneList)<- sig_exp_genes$ENTREZID
 
-
 download.pathway<-function(keggid){
 folder<-"pics"
-if (!("pics" %in% list.files())) {dir.create(folder)}
+if (!(folder %in% list.files())) {dir.create(folder)}
 setwd(folder)
 pic <- pathview(gene.data  = geneList,
-                     pathway.id = keggid,
-                     species    = stringr::str_extract(keggid,"[A-z]+"),
-                     limit      = list(gene=max(abs(geneList)), cpd=1))
+                pathway.id = keggid,
+                species    = stringr::str_extract(keggid,"[A-z]+"),
+                limit      = list(gene=max(abs(geneList)), cpd=1))
 setwd("..")
 }
 
@@ -615,9 +649,12 @@ mkk <- enrichMKEGG(gene           = sig_exp_genes$ENTREZID,
 # mkkres <- as.data.frame(mkk@result)
 ```
 
-<p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample4" role="button" aria-expanded="false" aria-controls="collapseExample4">
-KEGG images
-</a></p><div class="collapse" id="collapseExample4"><div class="card card-body">
+### KEGG images
+
+<p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample4" role="button" aria-expanded="false" aria-controls="collapseExample4"> KEGG images </a></p>
+
+::: {#collapseExample4 .collapse}
+::: {.card .card-body}
 ```{r}
 piclist <- list.files(path = "pics",
                       pattern = '*.png$',)
@@ -625,7 +662,22 @@ piclist <- list.files(path = "pics",
 
 knitr::include_graphics(paste("pics", piclist, sep = "/"))
 ```
-</div></div>
+:::
+:::
+
+```{r Kegg-glycolysis, fig.cap="Graph of Glycolysis/ Gluconeogenesis"}
+knitr::include_graphics(paste("pics", piclist[1], sep = "/"))
+```
+
+```{r Kegg-pentose, fig.cap="Graph of Pentose phosphate pathway"}
+knitr::include_graphics(paste("pics", piclist[3], sep = "/"))
+```
+
+```{r Kegg-fructose, fig.cap="Graph of Fructose and mannose Metabolism"}
+knitr::include_graphics(paste("pics", piclist[5], sep = "/"))
+```
+
+### BCV distance
 
 ```{r}
 count_data <- as.data.frame(counts(dds_diet))
@@ -640,12 +692,14 @@ d$samples$lib.size <- colSums(d$counts)
 d <- calcNormFactors(d, method= "TMM")
 ```
 
-```{r}
+```{r BCV-distance}
 col = as.numeric(d$samples$group)
 plotMDS(d, method="bcv",pch = 20,col = 1:4)
 legend("bottomright",
        as.character(unique(d$samples$group)), col=1:4, pch=20)
 ```
+
+### BCV Plot
 
 ```{r}
 # Estimating the dispersion
@@ -654,7 +708,7 @@ d1 <- estimateCommonDisp(d, verbose=T)
 d1 <- estimateTagwiseDisp(d1)
 ```
 
-```{r}
+```{r BCV}
 # names(d1)
 plotBCV(d1)
 ```
@@ -703,44 +757,68 @@ knitr::kable(out$table,
              "\ntest: ", out$test))
 ```
 
+------------------------------------------------------------------------
+
+# Interpretation
+
+## Top genes
+
+### PLA2G4C
+
+[PLA2G4C](https://www.ncbi.nlm.nih.gov/gene/232889) gene encodes a protein belonging to the phospholipase A2 enzyme family. This protein acts to break down glycerophospholipids, producing free fatty acids and lysophospholipids, which are important for the production of signaling molecules. The protein is calcium-independent and is membrane-bound.
+
+### RETNLB
+
+[RETNLB](https://www.ncbi.nlm.nih.gov/gene/57263) gene encodes a protein called resistin-like beta (RETNLB). This protein is a member of the resistin-like molecule family and is involved in immune regulation and metabolic processes. It is secreted and may play a role in inflammation, insulin resistance, and adipocyte metabolism. Tissue is expressed only in the gastrointestinal tract, particularly the colon.
+
+### G6PC
+
+[G6PC](https://www.ncbi.nlm.nih.gov/gene/14377) gene provides instructions for making an enzyme called glucose-6-phosphatase, which plays a key role in sugar metabolism. Mutations in the G6PC gene can lead to several conditions, including glycogen storage disease type Ia (GSD Ia), also known as von Gierke disease, and type Ib (GSD Ib). These conditions affect the body's ability to store and release glucose properly, resulting in symptoms such as low blood sugar, enlarged liver, and delayed growth. This gene was included in a research "The absence of hepatic glucose-6 phosphatase/ ChREBP couple is incompatible with survival in mice". In this research, the researchers investigated the effects of deleting the ChREBP (carbohydrate response element-binding protein) gene in mice that already lacked the G6Pase (glucose-6 phosphatase) gene, which is essential for glucose production in the liver. The researchers found that the combined deletion of ChREBP and G6Pase led to a significant decrease in lipid accumulation in the liver, but resulted in exacerbated glycogen accumulation, causing hepatomegaly (enlarged liver) and liver damage. The study highlights the important role of the ChREBP-G6Pase duo in regulating glucose-6 phosphate (G6P) pathways in the liver, and suggests that further research is needed to understand the complex interactions between these genes and their impact on liver metabolism.[@2021]
+
+### CBR3
+
+[CBR3](https://www.ncbi.nlm.nih.gov/gene/109857/) encodes for an enzyme called carbonyl reductase 3, which is involved in the metabolism of various drugs and endogenous compounds in the body. The GeneCards entry provides information on the gene's basic details, including its location, aliases, and function. It also includes information on the gene's expression patterns, protein structure, and associated diseases or disorders.
+
+### ANGPT4/ Ang4
+
+[Ang4](https://www.ncbi.nlm.nih.gov/gene/219033) encodes for a protein called angiopoietin-4, which is involved in the regulation of blood vessel development and maintenance. The GeneCards entry provides information on the gene's basic details, such as its location, aliases, and function. It also includes information on the gene's expression patterns, protein structure, and associated diseases or disorders.
+
+------------------------------------------------------------------------
+
+The most expressed gene Pla2g4c (Figure \@ref(fig:topGenes)). When comparing the expression of the gene compared to the used feeding diet, the normalized count between chow and AIN76A is significantly different as seen in \@ref(fig:topG-count). The gene showed higher expression in samples fed with chow than other samples as seen in \@ref(fig:gene-diet-matrix). Beside Pla2g4c, the genes Cbr3, Ddah1, Ang4 and Retnlb show higher expression in mice fed with chow diet, while genes like Ifit3, Ifit1, E030010A14Rik, Aldob and G6pc show under expression compared to other feeds.
+
+In figure \@ref(fig:volcanoplot) we compared chow and AIN76A feeds to produces a enhanced volcano plot. Aldob gene is under expressed while genes Ang4, Cbr3 and Retnlb are over expressed. The highest Log_10 value holds the gene Ang4, making it the most statistically significant gene. In comparison from the most significant gene using descending absolute value of log2Fold(\@ref(fig:topGenes)) Ang4 shows higher normalized count(Figure \@ref(fig:topG-count2)) in chow foods compared to Pla2g4c count(Figure \@ref(fig:topG-count)).
+
+## Metabolic procesess
+
+Pla2g4c and Ang4 genes are both involved in glycerolipid metabolic process(Figure \@ref(fig:gene-graph)). 
+Pla2g4c shares the glycerophospholipid catabolic process with Pnliprp2 gene. 
+Ang4 has been identified to be tied to increase of Tie2 and Akt phosphorylation[@2004]. 
+Ang4, is produced by mouse Paneth cells, is secreted into the gut lumen and has bactericidal activity against intestinal microbes. Angiogenins have been implicated in tumor-associated angiogenesis. 
+Ang4 expression is induced by *Bacteroides thetaiotaomicron*, a predominant member of the gut microflora, revealing a mechanism whereby intestinal commensal bacteria influence gut microbial ecology and shape innate immunity[@2003]. 
+Over expression of Ang4 genes could possibly imply a correlation in diet choice and microbial ecology.
+More study is needed.
+
+The study advises more intense study of feeds used in testing.
+This small sample shows that different use of feeds may influence the results of the studies conducted using said feeds.
+The researchers advice more thorough checking and testing of feeds used in test mice, as they may influence the results of studies.
 
 
-***
 
 # TODO
 
-- <input type="checkbox" checked>todo</input>
+-   <input type="checkbox" checked>add table DEGENES in Results tables</input>
 
-- <input type="checkbox" >Brief description of article / aims of study</input>
+-   <input type="checkbox" checked >don't use gender ones. (DIff exp anal)</input>
 
-- <input type="checkbox"> interpretation of the visualisations (heatmap, MDS, etc.)</input>
+-   <input type="checkbox" checked >write which two gropsu compared</input>
 
-- <input type="checkbox"> Differential expression analysis</input>
+-   <input type="checkbox" checked >insert table from results ( indicate how many genes were expressed, which p valjue as threashold)</input>
 
-- <input type="checkbox"> presentation of the results of the functional enrichment analysis </input>
+-   <input type="checkbox" checked >heatmap : select top 20 expr genes based on p-val or absolute log 2 change</input>
 
-  - (identify some biological processes from GO BP or KEGG pathways identified by ORA or GSEA analysis that are important for the organism response/disease you are investigating).
-  
-- <input type="checkbox"> compare your results with the results reported in the article and highlight your main conclusions</input>
+    -   <input type="checkbox" checked >MAJA select top 5 genes and search literature if there are any similar findings, if genes were already observed by some other reasearcher, in order to be inportant to different diets</input>
 
-- <input type="checkbox"> Edge R analysis </input>
-- bonus
-  - genes with the highest value
-  - genes with the lowest value
-  - include info on gender (only for visualization)
-
-# TL;DR
-
-Wenge Li and colleagues, the findings include:
-
-- Diet choice can significantly affect stem cell function, including proliferation, differentiation, and senescence.
-
-- Different types of diets, such as high-fat diets, low-calorie diets, and fasting, have different effects on stem cells.
-
-- The effects of diet on stem cells are mediated by various mechanisms, such as oxidative stress, inflammation, and epigenetic changes.
-
-- The choice of animal models and cell types used in stem cell research can also affect the interpretation of the results and the generalizability of the findings.
-
-- The quality and clarity of reporting in scientific publications are crucial for facilitating reproducibility and transparency in stem cell research, especially regarding the details of diet selection and administration.
+-   <input type="checkbox" >inerpretation of results : Gcel1 was already observed in study [2002] that its importatnt for metabolism of carbohydrates. for 5 genes and 5 bio. procesess (obtained w GO or KEGG).</input>
 
 # References
